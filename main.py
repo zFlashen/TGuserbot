@@ -400,4 +400,90 @@ async def heart(event):
         "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
         "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
         "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
-        "☁
+        "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
+        "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
+        "☁️☁️☁️☁️☁️☁️☁️☁️☁️\n☁️☁️☁️☁️☁️☁️☁️☁️☁️",
+        "☁️☁️☁️☁️☁️☁️☁️☁️☁️",
+        "❤️❤️i☁️☁️☁️☁️☁️☁️☁️☁️",
+        "❤️❤️i❤️❤️love☁️☁️☁️☁️☁️☁️", 
+        "❤️❤️i❤️❤️love❤️❤️you☁️☁️☁️☁️",   
+        "❤️❤️i❤️❤️love❤️❤️you❤️❤️forever☁️☁️",  
+        "❤️❤️i❤️❤️love❤️❤️you❤️❤️forever❤️❤️",
+
+
+
+
+
+
+
+        # 
+    ]
+
+    for stage in stages:
+        await event.edit(stage)  # Обновление текущего сообщения
+        await asyncio.sleep(0.3)  # Задержка в 0.3 секунды между кадрами
+        
+
+   
+    #await message.edit("Финальная стадия ❤️")  # Финальный текст
+
+@client.on(events.NewMessage(pattern=r'/support'))
+async def support_author(event):
+    """Команда для поддержки автора (номер карты)."""
+    try:
+        if not event.out:
+            return
+
+        support_message = """
+        Если вам понравился бот и вы хотите поддержать автора, вот номер карты:
+        Номер карты: 9112 3800 5275 9059
+        Благодарю за вашу поддержку!
+        """
+        await event.reply(support_message, parse_mode='html')
+    except Exception as e:
+        print(f"Ошибка при отправке информации для поддержки: {e}")
+        await event.reply("<b>Произошла ошибка при отправке информации.</b>", parse_mode='html')
+
+
+@client.on(events.NewMessage(pattern=r'/update'))
+async def update_script(event):
+    """Команда для обновления скрипта с GitHub и его автоматического перезапуска."""
+    try:
+        if not event.out:
+            return
+
+        response = requests.get(GITHUB_RAW_URL)
+
+        if response.status_code == 200:
+            current_file = os.path.abspath(__file__)
+            with open(current_file, 'w', encoding='utf-8') as f:
+                f.write(response.text)
+
+            await event.reply("<b>Скрипт успешно обновлен. Перезапуск...</b>", parse_mode='html')
+
+            # Перезапуск скрипта
+            os.execv(sys.executable, [sys.executable, current_file])
+        else:
+            await event.reply("<b>Не удалось получить обновление. Проверьте URL и соединение с GitHub.</b>", parse_mode='html')
+
+    except Exception as e:
+        print(f"Ошибка при обновлении: {e}")
+        await event.reply("<b>Произошла ошибка при обновлении скрипта.</b>", parse_mode='html')
+
+
+async def main():
+    print(f"Запуск main()\nВерсия скрипта: {SCRIPT_VERSION}")
+    check_for_updates()
+    await client.start(phone=PHONE_NUMBER)
+    print("Скрипт успешно запущен! Для использования:")
+    print("- Напишите в чате /p (текст) для анимации печатания.")
+    print("- Используйте /s (задержка) для изменения скорости печатания.")
+    print("- Используйте /c (символ) для изменения символа курсора анимации.")
+    print("= Используйте /sp (текст) (количество) (скорость отправки).")
+    print("- Используйте /update для обновления скрипта с GitHub.")
+    print("- Используйте /support для поддержки автора.")
+    print("- Используйте сердечки для создания анимации сердца")
+    await client.run_until_disconnected()
+
+if __name__ == "__main__":
+    asyncio.run(main())
