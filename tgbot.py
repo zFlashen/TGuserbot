@@ -10,7 +10,7 @@ DEFAULT_TYPING_SPEED = 0.3
 DEFAULT_CURSOR = "\u2588"  # Символ по умолчанию для анимации
 
 # Инициализация бота
-bot = telebot.TeleBot('8141257649:AAF_tH89AM2AY2rALOGGfTwsMCgZrsj1fQo')
+bot = telebot.TeleBot('YOUR_BOT_TOKEN')
 
 # Состояния для ввода данных
 user_data = {}
@@ -49,7 +49,6 @@ def text_messages(message):
     elif message.text == "Запустить бота✅":
         # Проверяем, есть ли уже конфигурация
         if os.path.exists(CONFIG_FILE):
-            bot.send_message(message.chat.id, "Бот уже настроен. Запуск...")
             asyncio.run(start_main())
         else:
             # Запрашиваем API ID
