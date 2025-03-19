@@ -26,8 +26,26 @@ if os.path.exists(CONFIG_FILE):
         print(f"Ошибка чтения конфигурации: {e}. Удалите {CONFIG_FILE} и попробуйте снова.")
         exit(1)
 else:
-    print("Конфигурация не найдена. Запустите бота и настройте его через Telegram.")
-    exit(1)
+    # Запрашиваем данные у пользователя
+    try:
+        API_ID = int(input("Введите ваш API ID: "))
+        API_HASH = input("Введите ваш API Hash: ").strip()
+        PHONE_NUMBER = input("Введите ваш номер телефона (в формате +375XXXXXXXXX, +7XXXXXXXXXX): ").strip()
+        typing_speed = DEFAULT_TYPING_SPEED
+        cursor_symbol = DEFAULT_CURSOR
+
+        # Сохраняем данные в файл конфигурации
+        with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+            json.dump({
+                "API_ID": API_ID,
+                "API_HASH": API_HASH,
+                "PHONE_NUMBER": PHONE_NUMBER,
+                "typing_speed": typing_speed,
+                "cursor_symbol": cursor_symbol
+            }, f)
+    except Exception as e:
+        print(f"Ошибка сохранения конфигурации: {e}")
+        exit(1)
 
 # Уникальное имя файла для сессии
 SESSION_FILE = f'session_{PHONE_NUMBER.replace("+", "").replace("-", "")}'
@@ -66,7 +84,7 @@ def check_for_updates():
         print(f"Ошибка при проверке обновлений: {e}")
 
 
-@client.on(events.NewMessage(pattern=r'/p (.+)'))
+@client.on(events.NewMessage(pattern=r'.p (.+)'))
 async def animated_typing(event):
     """Команда для печатания текста с анимацией."""
     global typing_speed, cursor_symbol
@@ -88,7 +106,7 @@ async def animated_typing(event):
         await event.reply("<b>Произошла ошибка во время выполнения команды.</b>", parse_mode='html')
 
 
-@client.on(events.NewMessage(pattern=r'/s (\d*\.?\d+)'))
+@client.on(events.NewMessage(pattern=r'.s (\d*\.?\d+)'))
 async def set_typing_speed(event):
     """Команда для изменения скорости печатания."""
     global typing_speed
@@ -98,7 +116,7 @@ async def set_typing_speed(event):
 
         new_speed = float(event.pattern_match.group(1))
 
-        if 0.1 <= new_speed <= 2:
+        if 0.1 <= new_speed <= 0.5:
             typing_speed = new_speed
 
             with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -109,16 +127,16 @@ async def set_typing_speed(event):
 
             await event.reply(f"<b>Скорость печатания изменена на {typing_speed} секунд.</b>", parse_mode='html')
         else:
-            await event.reply("<b>Введите значение задержки в диапазоне от 0.1 до 2 секунд.</b>", parse_mode='html')
+            await event.reply("<b>Введите значение задержки в диапазоне от 0.1 до 0.5 секунд.</b>", parse_mode='html')
 
     except ValueError:
-        await event.reply("<b>Некорректное значение. Укажите число в формате 0.1 - 2.</b>", parse_mode='html')
+        await event.reply("<b>Некорректное значение. Укажите число в формате 0.1 - 0.5.</b>", parse_mode='html')
     except Exception as e:
         print(f"Ошибка при изменении скорости: {e}")
         await event.reply("<b>Произошла ошибка при изменении скорости.</b>", parse_mode='html')
 
 
-@client.on(events.NewMessage(pattern=r'/c (.+)'))
+@client.on(events.NewMessage(pattern=r'.c (.+)'))
 async def change_cursor(event):
     """Команда для изменения символа курсора анимации."""
     global cursor_symbol
@@ -145,7 +163,7 @@ async def change_cursor(event):
         print(f"Ошибка при изменении символа: {e}")
         await event.reply("<b>Произошла ошибка при изменении символа курсора.</b>", parse_mode='html')
 
-@client.on(events.NewMessage(pattern=r'/sp (.+) (\d+) (\d*\.?\d+)'))
+@client.on(events.NewMessage(pattern=r'.sp (.+) (\d+) (\d*\.?\d+)'))
 async def spam_message(event):
     """Команда для спама сообщений."""
     try:
@@ -168,6 +186,9 @@ async def spam_message(event):
     except Exception as e:
         print(f"Ошибка при спаме: {e}")
         await event.reply("<b>Произошла ошибка при отправке сообщений.</b>", parse_mode='html')
+
+
+
 
 @client.on(events.NewMessage(pattern="Сердце"))
 async def heart_figure(event):
@@ -482,8 +503,10 @@ async def main():
     print("= Используйте /sp (текст) (количество) (скорость отправки).")
     print("- Используйте /update для обновления скрипта с GitHub.")
     print("- Используйте /support для поддержки автора.")
-    print("- Используйте сердечки для создания анимации сердца")
+    print("- Используйте сердечки для создания анимация сердца")
     await client.run_until_disconnected()
 
+
 if __name__ == "__main__":
+    check_for_updates()
     asyncio.run(main())
